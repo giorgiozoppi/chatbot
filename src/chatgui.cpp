@@ -163,6 +163,8 @@ void ChatBotPanelDialog::PrintChatbotResponse(std::string response)
     AddDialogItem(botText, false);
 }
 
+// maybe is used to avoid warning in modern compilers.
+
 void ChatBotPanelDialog::paintEvent([[maybe_unused]] wxPaintEvent &evt)
 {
     wxPaintDC dc(this);

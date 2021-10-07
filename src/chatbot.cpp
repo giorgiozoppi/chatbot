@@ -2,64 +2,78 @@
 #include <random>
 #include <algorithm>
 #include <ctime>
-
-#include "chatlogic.h"
+#include <exception>
+#include <vector>
 #include "graphnode.h"
 #include "graphedge.h"
 #include "chatbot.h"
-
-// constructor WITHOUT memory allocation
-ChatBot::ChatBot()
-{
-    // invalidate data handles
-    _chatLogic = nullptr;
-    _rootNode = nullptr;
-}
+#include "chatlogic.h"
 
 // constructor WITH memory allocation
-ChatBot::ChatBot(const std::string& filename)
+ChatBot::ChatBot(const std::string &filename)
 {
     std::cout << "ChatBot Constructor" << std::endl;
-    
-    // invalidate data handles
     _chatLogic = nullptr;
     _rootNode = nullptr;
-
+    _currentNode = nullptr;
     // load image into heap memory
     _image = std::make_unique<wxBitmap>(filename, wxBITMAP_TYPE_PNG);
 }
-ChatBot::ChatBot(const ChatBot& source) {
+ChatBot::ChatBot(const ChatBot &source)
+{
+    std::cout << "ChatBot Constructor" << std::endl;
     _chatLogic = source._chatLogic;
+    _chatLogic->SetChatbotHandle(this);
     _rootNode = source._rootNode;
+    _currentNode = source._currentNode;
     _image.reset(new wxBitmap(*source._image));
 }
-ChatBot& ChatBot::operator=(const ChatBot& source) {
-    _chatLogic = source._chatLogic;
-    _rootNode = source._rootNode;
-    _image.reset(new wxBitmap(*source._image)); 
+ChatBot &ChatBot::operator=(const ChatBot &source)
+{
+    if (this != &source)
+    {
+        std::cout << "ChatBot Copy Assignment Operator" << std::endl;
+        _chatLogic = source._chatLogic;
+        _chatLogic->SetChatbotHandle(this);
+        _rootNode = source._rootNode;
+        _currentNode = source._currentNode;
+        _image.reset(new wxBitmap(*source._image));
+    }
+    return *this;
 }
-ChatBot::ChatBot(ChatBot&& source) noexcept {
+ChatBot::ChatBot(ChatBot &&source) noexcept
+{
+    std::cout << "ChatBot Move Constructor" << std::endl;
+    /// It's cleaner to use exchange, less code.
+    /// hint taken by Move Semantics talk by David Olsen: https://www.youtube.com/watch?v=ZG59Bqo7qX4
     _chatLogic = std::exchange(source._chatLogic, nullptr);
+    _chatLogic->SetChatbotHandle(this);
     _rootNode = std::exchange(source._rootNode, nullptr);
+    _currentNode = std::exchange(source._currentNode, nullptr);
     _image = std::move(source._image);
 }
-ChatBot& ChatBot::operator=(ChatBot&& source) noexcept {
-    _chatLogic = std::exchange(source._chatLogic, nullptr);
-    _rootNode = std::exchange(source._rootNode, nullptr);
-    _image = std::move(source._image);
-}
+ChatBot &ChatBot::operator=(ChatBot &&source) noexcept
+{
 
+    if (this != &source)
+    {
+
+        std::cout << "ChatBot Move assignement operator" << std::endl;
+        /// It's cleaner to use exchange, less code.
+        /// hint taken by Move Semantics talk by David Olsen: https://www.youtube.com/watch?v=ZG59Bqo7qX4
+        _chatLogic = std::exchange(source._chatLogic, nullptr);
+        _chatLogic->SetChatbotHandle(this);
+        _rootNode = std::exchange(source._rootNode, nullptr);
+        _currentNode = std::exchange(source._currentNode, nullptr);
+        _image = std::move(source._image);
+    }
+    return *this;
+}
 
 ChatBot::~ChatBot()
 {
     std::cout << "ChatBot Destructor" << std::endl;
 }
-
-//// STUDENT CODE
-////
-
-////
-//// EOF STUDENT CODE
 
 void ChatBot::ReceiveMessageFromUser(std::string message)
 {
@@ -69,7 +83,7 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
 
     for (size_t i = 0; i < _currentNode->GetNumberOfChildEdges(); ++i)
     {
-        GraphEdge *edge = _currentNode->GetChildEdgeAtIndex(i);
+        auto edge = _currentNode->GetChildEdgeAtIndex(i);
         for (auto keyword : edge->GetKeywords())
         {
             EdgeDist ed{edge, ComputeLevenshteinDistance(keyword, message)};
@@ -82,7 +96,8 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
     if (levDists.size() > 0)
     {
         // sort in ascending order of Levenshtein distance (best fit is at the top)
-        std::sort(levDists.begin(), levDists.end(), [](const EdgeDist &a, const EdgeDist &b) { return a.second < b.second; });
+        std::sort(levDists.begin(), levDists.end(), [](const EdgeDist &a, const EdgeDist &b)
+                  { return a.second < b.second; });
         newNode = levDists.at(0).first->GetChildNode(); // after sorting the best edge is at first position
     }
     else
@@ -123,11 +138,13 @@ int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
     if (n == 0)
         return m;
 
-    size_t *costs = new size_t[n + 1];
-
-    for (size_t k = 0; k <= n; k++)
-        costs[k] = k;
-
+    /// we prefer to use std::vector<size_t>.
+    // it's safer use a vector then allocate a dynamic one.
+    std::vector<size_t> costs(n+1);
+    {
+        int num{0};
+        std::generate(std::begin(costs), std::end(costs), [&num](){ return num++; });
+    }
     size_t i = 0;
     for (std::string::const_iterator it1 = s1.begin(); it1 != s1.end(); ++it1, ++i)
     {
@@ -151,9 +168,7 @@ int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
             corner = upper;
         }
     }
-
+    // i guess here you want type promotion.
     int result = costs[n];
-    delete[] costs;
-
     return result;
 }

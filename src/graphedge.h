@@ -6,6 +6,8 @@
 
 class GraphNode; // forward declaration
 
+
+
 class GraphEdge
 {
 private:
@@ -20,7 +22,9 @@ private:
 
 public:
     // constructor / desctructor
+    // Note: here we'll apply the rule of zero since we don't own any resource and vector has its own constructors/destructors.
     GraphEdge(int id);
+    
 
     // getter / setter
     int GetID() { return _id; }
@@ -30,7 +34,7 @@ public:
     std::vector<std::string> GetKeywords() { return _keywords; }
 
     // proprietary functions
-    void AddToken(std::string token);
+    void AddToken(const std::string& token);
 };
 
 #endif /* GRAPHEDGE_H_ */

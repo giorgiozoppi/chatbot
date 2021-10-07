@@ -13,14 +13,12 @@ private:
     wxBoxSizer *_dialogSizer;
     wxBitmap _image;
 
-    //// STUDENT CODE
-    ////
+    //
+    // Here we have decided that the logic belongs to the chatbot panel.
 
     std::unique_ptr<ChatLogic> _chatLogic;
 
-    ////
-    //// EOF STUDENT CODE
-
+    
 public:
     // constructor / destructor
     ChatBotPanelDialog(wxWindow *parent, wxWindowID id);

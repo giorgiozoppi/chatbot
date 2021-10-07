@@ -4,37 +4,46 @@
 #include <wx/bitmap.h>
 #include <string>
 #include <memory>
+#include <utility>
 
 class GraphNode; // forward declaration
 class ChatLogic; // forward declaration
 
+
 class ChatBot
 {
 private:
-    // data handles (owned)
+    ///
+    /// Here we prefer using a smart pointer, since the image is owned by the chatbox.
+    ///
     std::unique_ptr<wxBitmap> _image; // avatar image
 
-    // data handles (not owned)
-    GraphNode *_currentNode{0};
-    GraphNode *_rootNode{0};
-    ChatLogic *_chatLogic{0};
+    ///
+    /// Here we prefer to initialized all the variable
+    GraphNode *_currentNode{nullptr};
+    GraphNode *_rootNode{nullptr};
+    ChatLogic *_chatLogic{nullptr};
 
     // proprietary functions
     int ComputeLevenshteinDistance(std::string s1, std::string s2);
+    /// We've added this for copy constructors. It frees stuffs and load copies.
+    void Cleanup();
 
 public:
-    // constructors / destructors
-    ChatBot();                     // constructor WITHOUT memory allocation
+    // In this class there's no need of defining default constructor and destructor body
+    // we keep constructor as default and destructor since from requiriments we need print.
+
+    ChatBot() = default;                     // constructor WITHOUT memory allocation
+    /// filename is the name of the image
     ChatBot(const std::string& filename); // constructor WITH memory allocation
-
+    // copy 
+    ChatBot(const ChatBot& source);
+    ChatBot& operator=(const ChatBot& source); 
+    // move
+    ChatBot(ChatBot&& source) noexcept;
+    ChatBot& operator=(ChatBot&& source) noexcept;  
+    
     ~ChatBot();
-
-    //// STUDENT CODE
-    ////
-
-    ////
-    //// EOF STUDENT CODE
-
     // getters / setters
     void SetCurrentNode(GraphNode *node);
     void SetRootNode(GraphNode *rootNode) { _rootNode = rootNode; }
@@ -45,7 +54,6 @@ public:
     // communication
     void ReceiveMessageFromUser(std::string message);
     private:
-    void Cleanup();
 };
 
 #endif /* CHATBOT_H_ */
