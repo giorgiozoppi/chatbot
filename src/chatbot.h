@@ -26,6 +26,7 @@ public:
     // constructors / destructors
     ChatBot();                     // constructor WITHOUT memory allocation
     ChatBot(const std::string& filename); // constructor WITH memory allocation
+
     ~ChatBot();
 
     //// STUDENT CODE
@@ -43,6 +44,8 @@ public:
 
     // communication
     void ReceiveMessageFromUser(std::string message);
+    private:
+    void Cleanup();
 };
 
 #endif /* CHATBOT_H_ */

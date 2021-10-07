@@ -28,6 +28,27 @@ ChatBot::ChatBot(const std::string& filename)
     // load image into heap memory
     _image = std::make_unique<wxBitmap>(filename, wxBITMAP_TYPE_PNG);
 }
+ChatBot::ChatBot(const ChatBot& source) {
+    _chatLogic = source._chatLogic;
+    _rootNode = source._rootNode;
+    _image.reset(new wxBitmap(*source._image));
+}
+ChatBot& ChatBot::operator=(const ChatBot& source) {
+    _chatLogic = source._chatLogic;
+    _rootNode = source._rootNode;
+    _image.reset(new wxBitmap(*source._image)); 
+}
+ChatBot::ChatBot(ChatBot&& source) noexcept {
+    _chatLogic = std::exchange(source._chatLogic, nullptr);
+    _rootNode = std::exchange(source._rootNode, nullptr);
+    _image = std::move(source._image);
+}
+ChatBot& ChatBot::operator=(ChatBot&& source) noexcept {
+    _chatLogic = std::exchange(source._chatLogic, nullptr);
+    _rootNode = std::exchange(source._rootNode, nullptr);
+    _image = std::move(source._image);
+}
+
 
 ChatBot::~ChatBot()
 {
@@ -101,7 +122,7 @@ int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
         return n;
     if (n == 0)
         return m;
-        
+
     size_t *costs = new size_t[n + 1];
 
     for (size_t k = 0; k <= n; k++)
