@@ -76,7 +76,7 @@ ChatBotFrameImagePanel::ChatBotFrameImagePanel(wxFrame *parent) : wxPanel(parent
 {
 }
 
-void ChatBotFrameImagePanel::paintEvent(wxPaintEvent &evt)
+void ChatBotFrameImagePanel::paintEvent([[maybe_unused]] wxPaintEvent &evt)
 {
     wxPaintDC dc(this);
     render(dc);
@@ -121,7 +121,7 @@ ChatBotPanelDialog::ChatBotPanelDialog(wxWindow *parent, wxWindowID id)
     ////
 
     // create chat logic instance
-    _chatLogic = new ChatLogic(); 
+    _chatLogic = std::make_unique<ChatLogic>(); 
 
     // pass pointer to chatbot dialog so answers can be displayed in GUI
     _chatLogic->SetPanelDialogHandle(this);
@@ -135,13 +135,6 @@ ChatBotPanelDialog::ChatBotPanelDialog(wxWindow *parent, wxWindowID id)
 
 ChatBotPanelDialog::~ChatBotPanelDialog()
 {
-    //// STUDENT CODE
-    ////
-
-    delete _chatLogic;
-
-    ////
-    //// EOF STUDENT CODE
 }
 
 void ChatBotPanelDialog::AddDialogItem(wxString text, bool isFromUser)
@@ -170,7 +163,7 @@ void ChatBotPanelDialog::PrintChatbotResponse(std::string response)
     AddDialogItem(botText, false);
 }
 
-void ChatBotPanelDialog::paintEvent(wxPaintEvent &evt)
+void ChatBotPanelDialog::paintEvent([[maybe_unused]] wxPaintEvent &evt)
 {
     wxPaintDC dc(this);
     render(dc);

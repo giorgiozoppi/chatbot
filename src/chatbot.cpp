@@ -17,7 +17,7 @@ ChatBot::ChatBot()
 }
 
 // constructor WITH memory allocation
-ChatBot::ChatBot(std::string filename)
+ChatBot::ChatBot(const std::string& filename)
 {
     std::cout << "ChatBot Constructor" << std::endl;
     
@@ -101,7 +101,7 @@ int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
         return n;
     if (n == 0)
         return m;
-
+        
     size_t *costs = new size_t[n + 1];
 
     for (size_t k = 0; k <= n; k++)
