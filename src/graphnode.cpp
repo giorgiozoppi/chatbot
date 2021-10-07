@@ -44,7 +44,6 @@ GraphNode &GraphNode::operator=(GraphNode &&node) noexcept
 }
 void GraphNode::AddToken(const std::string &token)
 {
-    // more efficient.
     _answers.emplace_back(token);
 }
 void GraphNode::AddEdgeToParentNode(GraphEdge *edge)

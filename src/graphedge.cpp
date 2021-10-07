@@ -17,6 +17,7 @@ void GraphEdge::SetParentNode(GraphNode *parentNode)
 }
 
 // here we prefer emplace back and avoid to copy temporary
+// since the semantic is clear.
 void GraphEdge::AddToken(const std::string& token)
 {
     _keywords.emplace_back(token);
